@@ -29,10 +29,7 @@ import {
   saveAnswer,
 } from "./surveyDb";
 
-const CURRENT_VERSION = "firebase-three-choice-answer-key-v1";
-
-// 관리자 패널용 비밀번호입니다.
-// 프론트엔드에 들어가는 값이라 강한 보안은 아닙니다. 운영 편의용 잠금장치로만 쓰세요.
+const CURRENT_VERSION = "firebase-three-choice-answer-key-v2";
 const ADMIN_PASSWORD = "carloskim";
 
 const phaseConfig = [
@@ -42,9 +39,9 @@ const phaseConfig = [
 ];
 
 const choices = [
-  { id: "candidate_1", label: "후보 1", short: "1", color: "#4f46e5", gradient: "linear-gradient(135deg, #4f46e5, #06b6d4)" },
-  { id: "candidate_2", label: "후보 2", short: "2", color: "#db2777", gradient: "linear-gradient(135deg, #db2777, #f97316)" },
-  { id: "candidate_3", label: "후보 3", short: "3", color: "#059669", gradient: "linear-gradient(135deg, #059669, #14b8a6)" },
+  { id: "candidate_1", label: "후보 1", short: "1", gradient: "linear-gradient(135deg, #4f46e5, #06b6d4)" },
+  { id: "candidate_2", label: "후보 2", short: "2", gradient: "linear-gradient(135deg, #db2777, #f97316)" },
+  { id: "candidate_3", label: "후보 3", short: "3", gradient: "linear-gradient(135deg, #059669, #14b8a6)" },
 ];
 
 const methods = [
@@ -69,6 +66,7 @@ const answerKey = {
   "A-13": { inputFile: "3_250_slice.png", candidate_1: "score", candidate_2: "flow_matching", candidate_3: "ddib" },
   "A-14": { inputFile: "3_260_slice.png", candidate_1: "ddib", candidate_2: "flow_matching", candidate_3: "score" },
   "A-15": { inputFile: "3_270_slice.png", candidate_1: "flow_matching", candidate_2: "score", candidate_3: "ddib" },
+
   "B-01": { inputFile: "0_240_slice.png", candidate_1: "score", candidate_2: "ddib", candidate_3: "flow_matching" },
   "B-02": { inputFile: "0_250_slice.png", candidate_1: "ddib", candidate_2: "score", candidate_3: "flow_matching" },
   "B-03": { inputFile: "0_260_slice.png", candidate_1: "score", candidate_2: "flow_matching", candidate_3: "ddib" },
@@ -83,6 +81,7 @@ const answerKey = {
   "B-12": { inputFile: "61_240_slice.png", candidate_1: "ddib", candidate_2: "flow_matching", candidate_3: "score" },
   "B-13": { inputFile: "61_250_slice.png", candidate_1: "ddib", candidate_2: "flow_matching", candidate_3: "score" },
   "B-14": { inputFile: "61_260_slice.png", candidate_1: "score", candidate_2: "ddib", candidate_3: "flow_matching" },
+
   "C-01": { inputFile: "0_240_slice.png", candidate_1: "score", candidate_2: "ddib", candidate_3: "flow_matching" },
   "C-02": { inputFile: "0_250_slice.png", candidate_1: "score", candidate_2: "flow_matching", candidate_3: "ddib" },
   "C-03": { inputFile: "0_260_slice.png", candidate_1: "score", candidate_2: "ddib", candidate_3: "flow_matching" },
@@ -166,14 +165,10 @@ function computeStats(participants, options = {}) {
   const completed = participants.filter((participant) => participant.completedAt);
   const source = options.includeIncomplete ? participants : completed;
 
-  const byQuestion = Object.fromEntries(
-    questions.map((question) => [question.id, createEmptyMethodStats()])
-  );
-
+  const byQuestion = Object.fromEntries(questions.map((question) => [question.id, createEmptyMethodStats()]));
   const byPhase = Object.fromEntries(
     phaseConfig.map((phase) => [phase.id, { ...createEmptyMethodStats(), questionCount: phase.count }])
   );
-
   const overall = createEmptyMethodStats();
 
   for (const participant of source) {
@@ -220,21 +215,7 @@ function DbStatus({ status, error }) {
   const loading = status === "connecting";
 
   return (
-    <div
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "8px 12px",
-        borderRadius: 999,
-        fontSize: 12,
-        fontWeight: 850,
-        color: ok ? "#bbf7d0" : loading ? "#c7d2fe" : "#fecdd3",
-        background: ok ? "rgba(34, 197, 94, 0.12)" : loading ? "rgba(99, 102, 241, 0.12)" : "rgba(244, 63, 94, 0.14)",
-        border: ok ? "1px solid rgba(34, 197, 94, 0.24)" : loading ? "1px solid rgba(129, 140, 248, 0.24)" : "1px solid rgba(251, 113, 133, 0.24)",
-      }}
-      title={error || ""}
-    >
+    <div className={cx("db-status", ok && "db-ok", loading && "db-loading", !ok && !loading && "db-error")} title={error || ""}>
       {ok ? <Wifi size={15} /> : <WifiOff size={15} />}
       {ok ? "DB connected" : loading ? "DB connecting" : "DB error"}
     </div>
@@ -263,35 +244,17 @@ function StartScreen({ participants, dbStatus, dbError, onStart, onShowResults }
   return (
     <Shell theme="dark">
       <section className="hero-grid">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-          className="hero-copy"
-        >
-          <div className="eyebrow"><Sparkles size={16} /> Yonsei-Samsung Medison</div>
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }} className="hero-copy">
+          <div className="eyebrow"><Sparkles size={16} /> Medison Blind Test</div>
           <h1 className="landing-title">Fetal Ultrasound Blind Test</h1>
-          <p>
-            각 케이스에서 가장 선호하는 후보를 선택하세요.
-            결과는 매핑을 통해 method 기준으로 자동 집계됩니다.
+          <p className="hero-description">
+            각 케이스에서 가장 선호하는 후보를 빠르게 선택하세요. 결과는 method 기준으로 자동 집계됩니다.
           </p>
 
           <div className="hero-stats">
-            <div className="hero-stat-card">
-              <strong>40</strong>
-              <span>총 문항</span>
-            </div>
-
-            <div className="hero-stat-card">
-              <strong>3</strong>
-              <span>방법 수</span>
-              <small>score · ddib · flow_matching</small>
-            </div>
-
-            <div className="hero-stat-card">
-              <strong>{participants.length}</strong>
-              <span>등록 ID</span>
-            </div>
+            <div className="hero-stat-card"><strong>40</strong><span>총 문항</span></div>
+            <div className="hero-stat-card"><strong>3</strong><span>방법 수</span><small>score · ddib · flow_matching</small></div>
+            <div className="hero-stat-card"><strong>{participants.length}</strong><span>등록 ID</span></div>
           </div>
 
           <div className="phase-strip">
@@ -304,14 +267,8 @@ function StartScreen({ participants, dbStatus, dbError, onStart, onShowResults }
           </div>
         </motion.div>
 
-        <motion.form
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.45, delay: 0.06 }}
-          className="login-card"
-          onSubmit={submit}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+        <motion.form initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.45, delay: 0.06 }} className="login-card" onSubmit={submit}>
+          <div className="login-card-top">
             <div className="login-icon"><UserRound size={26} /></div>
             <DbStatus status={dbStatus} error={dbError} />
           </div>
@@ -366,17 +323,17 @@ function TopBar({ participant, answers, saveState, onStats, onRestart }) {
         </div>
       </div>
 
+      <div className="top-actions">
+        <Button variant="soft" onClick={onStats}><BarChart3 size={17} /> 결과</Button>
+        <Button variant="ghost" onClick={onRestart}><RotateCcw size={17} /></Button>
+      </div>
+
       <div className="top-progress">
         <div className="top-progress-label">
           <span>{progress.answered}/{progress.total} answered · {saveState}</span>
           <strong>{progress.percent}%</strong>
         </div>
         <div className="progress-track"><div style={{ width: `${progress.percent}%` }} /></div>
-      </div>
-
-      <div className="top-actions">
-        <Button variant="soft" onClick={onStats}><BarChart3 size={17} /> 결과</Button>
-        <Button variant="ghost" onClick={onRestart}><RotateCcw size={17} /></Button>
       </div>
     </header>
   );
@@ -400,12 +357,7 @@ function PhaseProgressCard({ phase, answers, currentIndex, onJump }) {
           const active = index === currentIndex;
           const done = Boolean(answers[question.id]);
           return (
-            <button
-              key={question.id}
-              className={cx("q-dot", active && "active", done && "done")}
-              onClick={() => onJump(index)}
-              title={question.id}
-            >
+            <button key={question.id} className={cx("q-dot", active && "active", done && "done")} onClick={() => onJump(index)} title={question.id}>
               {question.number}
             </button>
           );
@@ -430,15 +382,11 @@ function ChoiceButton({ choice, selected, disabled, onClick }) {
   return (
     <button className={cx("choice-button", selected && "selected")} onClick={onClick} disabled={disabled}>
       <div className="choice-number">{choice.short}</div>
-      <div className="choice-copy">
-        <strong>{choice.label}</strong>
-      </div>
+      <div className="choice-copy"><strong>{choice.label}</strong></div>
       <div className="choice-check">{selected ? <Check size={22} /> : <Circle size={22} />}</div>
     </button>
   );
 }
-
-
 
 function SurveyScreen({ participant, setParticipant, onShowStats, onRestart }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -467,11 +415,8 @@ function SurveyScreen({ participant, setParticipant, onShowStats, onRestart }) {
     try {
       await saveAnswer(participant.evaluatorId, question.id, choiceId);
       setSaveState("saved");
-
       if (currentIndex < questions.length - 1) {
-        setTimeout(() => {
-          setCurrentIndex((value) => Math.min(value + 1, questions.length - 1));
-        }, 120);
+        setTimeout(() => setCurrentIndex((value) => Math.min(value + 1, questions.length - 1)), 120);
       }
     } catch (err) {
       setParticipant(previous);
@@ -498,7 +443,6 @@ function SurveyScreen({ participant, setParticipant, onShowStats, onRestart }) {
     }
 
     setSaveState("completing...");
-
     try {
       await completeParticipant(participant.evaluatorId);
       setParticipant({ ...participant, completedAt: new Date().toISOString() });
@@ -527,20 +471,13 @@ function SurveyScreen({ participant, setParticipant, onShowStats, onRestart }) {
           </div>
 
           <AnimatePresence mode="wait">
-            <motion.div
-              key={question.id}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -14 }}
-              transition={{ duration: 0.2 }}
-              className="question-panel"
-            >
+            <motion.div key={question.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} transition={{ duration: 0.2 }} className="question-panel">
               <div className="question-head">
                 <div>
                   <div className={cx("phase-badge", phase.tone)}>{phase.label}</div>
                   <h2>{question.id}</h2>
                   <p>{question.prompt}</p>
-                  {question.inputFile && <p style={{ marginTop: 8, fontSize: 14, color: "#64748b" }}>Input file: {question.inputFile}</p>}
+                  {question.inputFile && <p className="input-file-line">Input file: {question.inputFile}</p>}
                 </div>
                 <div className="case-counter"><span>Case</span><strong>{currentIndex + 1}</strong><em>/ {questions.length}</em></div>
               </div>
@@ -548,42 +485,33 @@ function SurveyScreen({ participant, setParticipant, onShowStats, onRestart }) {
               <div className="image-placeholder-card">
                 <Layers3 size={28} />
                 <div>
-              <strong>외부 화면에서 이미지 확인</strong>
-              <span>선택 시 자동으로 다음 문항으로 이동</span>
-            </div>
+                  <strong>외부 화면에서 확인</strong>
+                  <span>선택 시 자동 이동</span>
+                </div>
               </div>
 
               <div className="choice-grid">
                 {choices.map((choice) => (
-                  <ChoiceButton
-                    key={choice.id}
-                    choice={choice}
-                    selected={selectedChoice === choice.id}
-                    disabled={saveState === "saving..."}
-                    onClick={() => choose(choice.id)}
-                  />
+                  <ChoiceButton key={choice.id} choice={choice} selected={selectedChoice === choice.id} disabled={saveState === "saving..."} onClick={() => choose(choice.id)} />
                 ))}
               </div>
 
               {warning && <div className="warning-box"><SearchCheck size={17} /> {warning}</div>}
 
               <div className="survey-footer">
-                <Button variant="outline" size="lg" onClick={goPrevious} disabled={currentIndex === 0}>
+                <Button variant="outline" size="lg" className="footer-nav-btn footer-nav-left" onClick={goPrevious} disabled={currentIndex === 0}>
                   <ArrowLeft size={18} /> 뒤로
                 </Button>
 
                 <div className="footer-progress-pill">
                   <span>진행률</span>
-                  <strong>
-                    {progress.answered}
-                    <em> / {progress.total}</em>
-                  </strong>
+                  <strong>{progress.answered}<em> / {progress.total}</em></strong>
                 </div>
 
                 {currentIndex === questions.length - 1 ? (
-                  <Button size="lg" onClick={finish}>완료 체크 <CheckCircle2 size={18} /></Button>
+                  <Button size="lg" className="footer-nav-btn footer-nav-right" onClick={finish}>완료 <CheckCircle2 size={18} /></Button>
                 ) : (
-                  <Button variant="outline" size="lg" onClick={goNext}>건너뛰기/다음 <ArrowRight size={18} /></Button>
+                  <Button variant="outline" size="lg" className="footer-nav-btn footer-nav-right" onClick={goNext}>다음 <ArrowRight size={18} /></Button>
                 )}
               </div>
             </motion.div>
@@ -604,47 +532,18 @@ function BarPlot({ stats, compact = false }) {
   const maxValue = Math.max(1, ...rows.map((row) => row.value));
 
   return (
-    <div style={{ display: "grid", gap: compact ? 8 : 12 }}>
+    <div className="barplot" style={{ gap: compact ? 8 : 12 }}>
       {rows.map((row) => (
-        <div key={row.id} style={{ display: "grid", gridTemplateColumns: compact ? "118px 1fr 54px" : "132px 1fr 74px", gap: 10, alignItems: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#e2e8f0", fontSize: compact ? 12 : 14, fontWeight: 900 }}>
-            <span style={{ width: 10, height: 10, borderRadius: 999, background: row.gradient, display: "inline-block" }} />
-            {row.label}
+        <div key={row.id} className={cx("barplot-row", compact && "barplot-row-compact")}>
+          <div className="barplot-label"><span style={{ background: row.gradient }} />{row.label}</div>
+          <div className="barplot-track">
+            <motion.div initial={{ width: 0 }} animate={{ width: row.value ? `${Math.max(3, (row.value / maxValue) * 100)}%` : "0%" }} transition={{ duration: 0.45 }} style={{ background: row.gradient }} />
+            {!compact && row.value > 0 && <em>{row.value} votes</em>}
           </div>
-          <div style={{ height: compact ? 24 : 34, borderRadius: 999, background: "rgba(255,255,255,0.1)", overflow: "hidden", position: "relative" }}>
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: row.value ? `${Math.max(3, (row.value / maxValue) * 100)}%` : "0%" }}
-              transition={{ duration: 0.45 }}
-              style={{ height: "100%", borderRadius: 999, background: row.gradient, boxShadow: "0 10px 24px rgba(0,0,0,0.2)" }}
-            />
-            {!compact && row.value > 0 && (
-              <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "white", fontSize: 12, fontWeight: 950, textShadow: "0 1px 6px rgba(0,0,0,0.28)" }}>
-                {row.value} votes
-              </span>
-            )}
-          </div>
-          <div style={{ color: "#f8fafc", textAlign: "right", fontSize: compact ? 12 : 14, fontWeight: 950 }}>
-            {row.percent}%
-          </div>
+          <div className="barplot-percent">{row.percent}%</div>
         </div>
       ))}
-      {!compact && (
-        <div style={{ color: "#94a3b8", fontSize: 12, fontWeight: 800, marginTop: 2 }}>
-          총 응답 선택 수 {answeredTotal}{stats?.missing ? ` · 미응답 ${stats.missing}` : ""}{stats?.unknown ? ` · 매핑 실패 ${stats.unknown}` : ""}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function ResultMappingLine({ question }) {
-  const key = answerKey[question.id];
-  if (!key) return null;
-
-  return (
-    <div style={{ marginTop: 5, color: "#94a3b8", fontSize: 11, fontWeight: 800, lineHeight: 1.45 }}>
-      1→{key.candidate_1} · 2→{key.candidate_2} · 3→{key.candidate_3}
+      {!compact && <div className="barplot-note">총 응답 선택 수 {answeredTotal}{stats?.missing ? ` · 미응답 ${stats.missing}` : ""}{stats?.unknown ? ` · 매핑 실패 ${stats.unknown}` : ""}</div>}
     </div>
   );
 }
@@ -675,10 +574,8 @@ function DataManager({ participants }) {
   async function removeParticipant(evaluatorId) {
     const ok = window.confirm(`${evaluatorId} 평가자 데이터 전체를 삭제할까요? 이 작업은 되돌릴 수 없습니다.`);
     if (!ok) return;
-
     setDeletingId(evaluatorId);
     setStatus("삭제 중...");
-
     try {
       await deleteParticipant(evaluatorId);
       setStatus(`${evaluatorId} 삭제 완료`);
@@ -694,22 +591,15 @@ function DataManager({ participants }) {
       setStatus("삭제할 데이터가 없습니다.");
       return;
     }
-
-    const typed = window.prompt(
-      `현재 필터에 보이는 ${visibleParticipants.length}명의 데이터를 삭제합니다. 진행하려면 DELETE를 입력하세요.`
-    );
+    const typed = window.prompt(`현재 목록 ${visibleParticipants.length}명을 삭제합니다. 진행하려면 DELETE를 입력하세요.`);
     if (typed !== "DELETE") {
       setStatus("일괄 삭제 취소됨");
       return;
     }
-
     setDeletingId("__bulk__");
     setStatus("일괄 삭제 중...");
-
     try {
-      for (const item of visibleParticipants) {
-        await deleteParticipant(item.evaluatorId);
-      }
+      for (const item of visibleParticipants) await deleteParticipant(item.evaluatorId);
       setStatus(`${visibleParticipants.length}명 삭제 완료`);
     } catch (err) {
       setStatus(err?.message || "일괄 삭제 실패");
@@ -724,20 +614,15 @@ function DataManager({ participants }) {
       setStatus("진행 중 데이터가 없습니다.");
       return;
     }
-
     const typed = window.prompt(`진행 중 데이터 ${incomplete.length}개를 삭제합니다. 진행하려면 DELETE를 입력하세요.`);
     if (typed !== "DELETE") {
       setStatus("진행 중 데이터 삭제 취소됨");
       return;
     }
-
     setDeletingId("__incomplete__");
     setStatus("진행 중 데이터 삭제 중...");
-
     try {
-      for (const item of incomplete) {
-        await deleteParticipant(item.evaluatorId);
-      }
+      for (const item of incomplete) await deleteParticipant(item.evaluatorId);
       setStatus(`진행 중 데이터 ${incomplete.length}개 삭제 완료`);
     } catch (err) {
       setStatus(err?.message || "진행 중 데이터 삭제 실패");
@@ -747,105 +632,38 @@ function DataManager({ participants }) {
   }
 
   return (
-    <div className="results-card wide">
-      <div className="card-title">
-        <strong>데이터 관리자</strong>
-        <span>평가자 데이터 삭제</span>
-      </div>
-
+    <div className="results-card wide admin-card">
+      <div className="card-title"><strong>데이터 관리자</strong><span>평가자 데이터 삭제</span></div>
       {!unlocked ? (
-        <form onSubmit={tryUnlock} style={{ display: "grid", gridTemplateColumns: "minmax(180px, 320px) auto", gap: 10, alignItems: "center" }}>
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="관리자 비밀번호"
-            style={{
-              height: 48,
-              borderRadius: 16,
-              border: "1px solid rgba(255,255,255,0.18)",
-              background: "rgba(255,255,255,0.1)",
-              color: "#f8fafc",
-              padding: "0 14px",
-              fontWeight: 850,
-              outline: "none",
-            }}
-          />
+        <form onSubmit={tryUnlock} className="admin-unlock-form">
+          <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="관리자 비밀번호" />
           <Button type="submit" variant="secondary">잠금 해제</Button>
-          <div className="admin-compact-note" style={{ gridColumn: "1 / -1" }}>
-          관리자 비밀번호를 입력하면 삭제 기능이 열립니다.
-        </div>
-          {status && <div style={{ gridColumn: "1 / -1", color: "#cbd5e1", fontSize: 13, fontWeight: 850 }}>{status}</div>}
+          <div className="admin-compact-note">관리자 비밀번호를 입력하면 삭제 기능이 열립니다.</div>
+          {status && <div className="admin-status">{status}</div>}
         </form>
       ) : (
-        <div style={{ display: "grid", gap: 14 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(180px, 1fr) auto auto", gap: 10, alignItems: "center" }}>
-            <input
-              value={filter}
-              onChange={(event) => setFilter(event.target.value)}
-              placeholder="평가자 ID 검색"
-              style={{
-                height: 46,
-                borderRadius: 16,
-                border: "1px solid rgba(255,255,255,0.18)",
-                background: "rgba(255,255,255,0.1)",
-                color: "#f8fafc",
-                padding: "0 14px",
-                fontWeight: 850,
-                outline: "none",
-              }}
-            />
-            <Button variant="outline" onClick={removeIncompleteParticipants} disabled={Boolean(deletingId)}>
-              진행 중 삭제
-            </Button>
-            <Button variant="outline" onClick={removeVisibleParticipants} disabled={Boolean(deletingId)}>
-              현재 목록 삭제
-            </Button>
+        <div className="admin-panel">
+          <div className="admin-toolbar">
+            <input value={filter} onChange={(event) => setFilter(event.target.value)} placeholder="평가자 ID 검색" />
+            <Button variant="outline" onClick={removeIncompleteParticipants} disabled={Boolean(deletingId)}>진행 중 삭제</Button>
+            <Button variant="outline" onClick={removeVisibleParticipants} disabled={Boolean(deletingId)}>현재 목록 삭제</Button>
           </div>
-
-          {status && <div style={{ color: "#cbd5e1", fontSize: 13, fontWeight: 850 }}>{status}</div>}
-
-          <div style={{ display: "grid", gap: 8, maxHeight: 420, overflow: "auto", paddingRight: 4 }}>
+          {status && <div className="admin-status">{status}</div>}
+          <div className="admin-list">
             {visibleParticipants.map((item) => {
               const progress = calcProgress(item.answers || {});
               return (
-                <div
-                  key={item.evaluatorId}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "minmax(120px, 1fr) 120px 110px auto",
-                    gap: 10,
-                    alignItems: "center",
-                    padding: 12,
-                    borderRadius: 16,
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                  }}
-                >
-                  <div style={{ minWidth: 0 }}>
-                    <strong style={{ display: "block", color: "#f8fafc", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {item.evaluatorId}
-                    </strong>
-                    <span style={{ display: "block", marginTop: 3, color: "#94a3b8", fontSize: 12, fontWeight: 800 }}>
-                      {item.completedAt ? "완료" : "진행 중"}
-                    </span>
-                  </div>
-                  <div style={{ color: "#cbd5e1", fontSize: 13, fontWeight: 850 }}>{progress.answered}/{questions.length}</div>
-                  <div style={{ color: "#cbd5e1", fontSize: 13, fontWeight: 850 }}>{progress.percent}%</div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeParticipant(item.evaluatorId)}
-                    disabled={Boolean(deletingId)}
-                  >
+                <div key={item.evaluatorId} className="admin-row">
+                  <div><strong>{item.evaluatorId}</strong><span>{item.completedAt ? "완료" : "진행 중"}</span></div>
+                  <div>{progress.answered}/{questions.length}</div>
+                  <div>{progress.percent}%</div>
+                  <Button variant="outline" size="sm" onClick={() => removeParticipant(item.evaluatorId)} disabled={Boolean(deletingId)}>
                     {deletingId === item.evaluatorId ? "삭제 중" : "삭제"}
                   </Button>
                 </div>
               );
             })}
-            {visibleParticipants.length === 0 && (
-              <div style={{ color: "#94a3b8", fontSize: 13, fontWeight: 850 }}>표시할 평가자 데이터가 없습니다.</div>
-            )}
+            {visibleParticipants.length === 0 && <div className="admin-empty">표시할 평가자 데이터가 없습니다.</div>}
           </div>
         </div>
       )}
@@ -855,7 +673,6 @@ function DataManager({ participants }) {
 
 function ResultsScreen({ participants, dbStatus, dbError, participant, onBack, onNewEvaluator }) {
   const [selectedEvaluatorId, setSelectedEvaluatorId] = useState("__all__");
-  
   const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   const participantOptions = useMemo(
@@ -865,22 +682,15 @@ function ResultsScreen({ participants, dbStatus, dbError, participant, onBack, o
 
   useEffect(() => {
     if (selectedEvaluatorId === "__all__") return;
-    if (!participants.some((item) => item.evaluatorId === selectedEvaluatorId)) {
-      setSelectedEvaluatorId("__all__");
-    }
+    if (!participants.some((item) => item.evaluatorId === selectedEvaluatorId)) setSelectedEvaluatorId("__all__");
   }, [participants, selectedEvaluatorId]);
 
   const selectedParticipant = participants.find((item) => item.evaluatorId === selectedEvaluatorId) || null;
   const isIndividualView = selectedEvaluatorId !== "__all__";
   const statsParticipants = isIndividualView && selectedParticipant ? [selectedParticipant] : participants;
-  const stats = useMemo(
-    () => computeStats(statsParticipants, { includeIncomplete: isIndividualView }),
-    [statsParticipants, isIndividualView]
-  );
-
+  const stats = useMemo(() => computeStats(statsParticipants, { includeIncomplete: isIndividualView }), [statsParticipants, isIndividualView]);
   const individualProgress = selectedParticipant ? calcProgress(selectedParticipant.answers || {}) : null;
   const answerCount = getMethodTotal(stats.overall);
-
 
   return (
     <Shell theme="dark">
@@ -889,59 +699,31 @@ function ResultsScreen({ participants, dbStatus, dbError, participant, onBack, o
           <div>
             <div className="eyebrow"><BarChart3 size={16} /> Result Dashboard</div>
             <h1>평가 결과</h1>
-            <p>
-              {isIndividualView
-                ? "선택한 평가자 기준 통계"
-                : "전체 완료 평가자 기준 통계"}
-            </p>
+            <p className="results-subtitle">{isIndividualView ? "선택한 평가자 기준 통계" : "전체 완료 평가자 기준 통계"}</p>
           </div>
-            <div className="results-actions">
-          <DbStatus status={dbStatus} error={dbError} />
-          <Button variant="secondary" onClick={onBack}>설문으로</Button>
-          <Button onClick={onNewEvaluator}>새 평가자</Button>
-          <Button variant="ghost" onClick={() => setShowAdminPanel((v) => !v)}>
-            {showAdminPanel ? "관리자 닫기" : "관리자"}
-          </Button>
+          <div className="results-actions">
+            <DbStatus status={dbStatus} error={dbError} />
+            <Button variant="secondary" onClick={onBack}>설문으로</Button>
+            <Button onClick={onNewEvaluator}>새 평가자</Button>
+            <Button variant="ghost" onClick={() => setShowAdminPanel((value) => !value)}>
+              {showAdminPanel ? "관리자 닫기" : "관리자"}
+            </Button>
+          </div>
         </div>
-        </div>
 
-        {showAdminPanel && (
-          <DataManager participants={participants} />
-        )}
-
-
+        {showAdminPanel && <DataManager participants={participants} />}
         {dbError && <div className="error-box">DB 연결 오류: {dbError}</div>}
 
-        
-
         <div className="results-card wide">
-          <div className="card-title">
-            <strong>보기 방식</strong>
-            <span>{isIndividualView ? "평가자 ID별 보기" : "전체 완료 평가자 보기"}</span>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(180px, 360px) 1fr", gap: 14, alignItems: "center" }}>
-            <select
-              value={selectedEvaluatorId}
-              onChange={(event) => setSelectedEvaluatorId(event.target.value)}
-              style={{
-                height: 48,
-                borderRadius: 16,
-                border: "1px solid rgba(255,255,255,0.18)",
-                background: "rgba(255,255,255,0.1)",
-                color: "#f8fafc",
-                padding: "0 14px",
-                fontWeight: 850,
-                outline: "none",
-              }}
-            >
-              <option value="__all__" style={{ color: "#0f172a" }}>전체 통계</option>
+          <div className="card-title"><strong>보기 방식</strong><span>{isIndividualView ? "평가자 ID별 보기" : "전체 완료 평가자 보기"}</span></div>
+          <div className="result-view-controls">
+            <select value={selectedEvaluatorId} onChange={(event) => setSelectedEvaluatorId(event.target.value)}>
+              <option value="__all__">전체 통계</option>
               {participantOptions.map((item) => (
-                <option key={item.evaluatorId} value={item.evaluatorId} style={{ color: "#0f172a" }}>
-                  {item.evaluatorId}{item.completedAt ? " · 완료" : " · 진행 중"}
-                </option>
+                <option key={item.evaluatorId} value={item.evaluatorId}>{item.evaluatorId}{item.completedAt ? " · 완료" : " · 진행 중"}</option>
               ))}
             </select>
-            <div style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 750, lineHeight: 1.5 }}>
+            <div>
               {isIndividualView && selectedParticipant
                 ? `${selectedParticipant.evaluatorId}: ${individualProgress?.answered || 0}/${questions.length}문항 응답${selectedParticipant.completedAt ? " · 완료" : " · 진행 중"}`
                 : `완료 평가자 ${stats.completed.length}명 기준으로 집계`}
@@ -950,25 +732,14 @@ function ResultsScreen({ participants, dbStatus, dbError, participant, onBack, o
         </div>
 
         <div className="summary-grid">
-          <div className="summary-card">
-            <ShieldCheck size={24} />
-            <span>{isIndividualView ? "선택 평가자" : "완료 평가자"}</span>
-            <strong style={{ fontSize: isIndividualView ? 22 : 38 }}>{isIndividualView ? selectedParticipant?.evaluatorId || "-" : stats.completed.length}</strong>
-          </div>
+          <div className="summary-card"><ShieldCheck size={24} /><span>{isIndividualView ? "선택 평가자" : "완료 평가자"}</span><strong>{isIndividualView ? selectedParticipant?.evaluatorId || "-" : stats.completed.length}</strong></div>
           <div className="summary-card"><ClipboardList size={24} /><span>총 문항</span><strong>{questions.length}</strong></div>
-          <div className="summary-card">
-            <UserRound size={24} />
-            <span>{isIndividualView ? "응답 문항" : "등록 ID"}</span>
-            <strong>{isIndividualView ? individualProgress?.answered || 0 : participants.length}</strong>
-          </div>
+          <div className="summary-card"><UserRound size={24} /><span>{isIndividualView ? "응답 문항" : "등록 ID"}</span><strong>{isIndividualView ? individualProgress?.answered || 0 : participants.length}</strong></div>
           <div className="summary-card"><CheckCircle2 size={24} /><span>선택 수</span><strong>{answerCount}</strong></div>
         </div>
 
         <div className="results-card wide">
-          <div className="card-title">
-            <strong>{isIndividualView ? "개별 전체 통계" : "전체 통계"}</strong>
-            <span>{isIndividualView ? selectedParticipant?.evaluatorId : "모든 Phase 합산"}</span>
-          </div>
+          <div className="card-title"><strong>{isIndividualView ? "개별 전체 통계" : "전체 통계"}</strong><span>{isIndividualView ? selectedParticipant?.evaluatorId : "모든 Phase 합산"}</span></div>
           <BarPlot stats={stats.overall} />
         </div>
 
@@ -986,11 +757,7 @@ function ResultsScreen({ participants, dbStatus, dbError, participant, onBack, o
           <div className="question-results-list">
             {questions.map((question) => (
               <div key={question.id} className="question-result-row">
-                <div>
-                  <strong>{question.id}</strong>
-                  <span>{getPhase(question.phase).label}</span>
-                  <ResultMappingLine question={question} />
-                </div>
+                <div><strong>{question.id}</strong><span>{getPhase(question.phase).label}</span></div>
                 <BarPlot stats={stats.byQuestion[question.id]} compact />
               </div>
             ))}
@@ -999,7 +766,6 @@ function ResultsScreen({ participants, dbStatus, dbError, participant, onBack, o
       </section>
     </Shell>
   );
- 
 }
 
 export default function App() {
@@ -1017,7 +783,6 @@ export default function App() {
         setParticipants(normalized);
         setDbStatus("connected");
         setDbError("");
-
         setParticipant((current) => {
           if (!current?.evaluatorId) return current;
           const latest = normalized.find((item) => item.evaluatorId === current.evaluatorId);
@@ -1051,32 +816,20 @@ export default function App() {
       newEvaluator();
       return;
     }
-
     const confirmDelete = window.confirm("현재 평가자 ID와 응답을 삭제하고 처음으로 돌아갈까요?");
     if (!confirmDelete) return;
-
     try {
       await deleteParticipant(participant.evaluatorId);
     } catch (err) {
       alert(err?.message || "평가자 삭제에 실패했습니다.");
       return;
     }
-
     setParticipant(null);
     setScreen("start");
   }
 
   if (screen === "stats") {
-    return (
-      <ResultsScreen
-        participants={participants}
-        dbStatus={dbStatus}
-        dbError={dbError}
-        participant={participant}
-        onBack={() => setScreen(participant ? "survey" : "start")}
-        onNewEvaluator={newEvaluator}
-      />
-    );
+    return <ResultsScreen participants={participants} dbStatus={dbStatus} dbError={dbError} participant={participant} onBack={() => setScreen(participant ? "survey" : "start")} onNewEvaluator={newEvaluator} />;
   }
 
   if (screen === "survey" && participant) {

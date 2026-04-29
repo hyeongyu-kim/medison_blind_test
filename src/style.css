@@ -2120,3 +2120,197 @@ select {
 }
 
 
+/* =========================
+   Mobile vertical compact tune
+   ========================= */
+@media (max-width: 768px) {
+  /* ---------- 상단 헤더 더 낮게 ---------- */
+  .topbar {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .brand-mark {
+    gap: 8px;
+    align-items: center;
+  }
+
+  .brand-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  .brand-mark strong {
+    font-size: 1.05rem;
+    line-height: 1.05;
+    margin: 0;
+  }
+
+  .brand-mark span {
+    font-size: 0.75rem;
+    line-height: 1.1;
+    margin-top: 2px;
+  }
+
+  .top-actions {
+    grid-template-columns: 1fr 52px;
+    gap: 8px;
+  }
+
+  .top-actions .btn {
+    height: 44px;
+    min-height: 44px;
+    border-radius: 14px;
+    font-size: 0.95rem;
+  }
+
+  .top-progress {
+    margin-top: 2px;
+  }
+
+  .top-progress-label {
+    font-size: 0.82rem;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+
+  .top-progress-track {
+    height: 8px;
+  }
+
+  /* ID 줄이 너무 크면 조금 축소 */
+  .brand-copy,
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* ---------- 질문 카드 위쪽도 약간 압축 ---------- */
+  .question-panel {
+    padding: 14px 12px 16px;
+  }
+
+  .question-head {
+    gap: 8px;
+  }
+
+  .question-head h2 {
+    font-size: clamp(2.8rem, 11vw, 3.8rem);
+    margin: 2px 0;
+  }
+
+  .question-head p {
+    font-size: 0.92rem;
+    line-height: 1.35;
+    margin: 0;
+  }
+
+  .case-counter {
+    max-width: 200px;
+    padding: 8px 14px;
+  }
+
+  .case-counter strong {
+    font-size: 1.8rem;
+  }
+
+  /* ---------- 안내 박스 높이 줄이기 ---------- */
+  .image-placeholder-card {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 16px;
+    gap: 8px;
+  }
+
+  .image-placeholder-card svg {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+  }
+
+  .image-placeholder-card strong {
+    font-size: 0.9rem;
+    margin-bottom: 1px;
+    line-height: 1.2;
+  }
+
+  .image-placeholder-card span {
+    font-size: 0.82rem;
+    line-height: 1.25;
+  }
+
+  /* ---------- 선택 카드 3개 ---------- */
+  .choice-grid {
+    margin-top: 12px;
+    gap: 8px;
+  }
+
+  .choice-button {
+    min-height: 110px;
+    padding: 12px 8px;
+    border-radius: 18px;
+  }
+
+  .choice-number {
+    width: 46px;
+    height: 46px;
+    font-size: 1.6rem;
+    border-radius: 14px;
+    margin-bottom: 8px;
+  }
+
+  .choice-copy strong {
+    font-size: 0.92rem;
+  }
+
+  .choice-copy span {
+    font-size: 0.76rem;
+    line-height: 1.1;
+  }
+
+  /* ---------- 하단 버튼 같은 크기 ---------- */
+  .survey-footer {
+    margin-top: 12px;
+    grid-template-columns: 1fr auto 1fr;
+    column-gap: 8px;
+    align-items: center;
+  }
+
+  .footer-nav-btn {
+    width: 120px;
+    min-width: 120px;
+    height: 46px;
+    padding: 0 10px;
+    border-radius: 14px;
+    font-size: 0.92rem;
+    justify-content: center;
+  }
+
+  .footer-nav-left {
+    justify-self: end;
+  }
+
+  .footer-nav-right {
+    justify-self: start;
+  }
+
+  .footer-progress-pill {
+    min-width: 84px;
+    padding: 7px 10px;
+  }
+
+  .footer-progress-pill span {
+    font-size: 0.68rem;
+    margin-bottom: 1px;
+  }
+
+  .footer-progress-pill strong {
+    font-size: 1.35rem;
+  }
+
+  .footer-progress-pill strong em {
+    font-size: 0.78rem;
+  }
+}
