@@ -269,10 +269,10 @@ function StartScreen({ participants, dbStatus, dbError, onStart, onShowResults }
           transition={{ duration: 0.45 }}
           className="hero-copy"
         >
-          <div className="eyebrow"><Sparkles size={16} /> Medison Blind Test</div>
+          <div className="eyebrow"><Sparkles size={16} /> Yonsei-Samsung Medison</div>
           <h1 className="landing-title">Fetal Ultrasound Blind Test</h1>
           <p>
-            각 케이스에서 가장 선호하는 후보를 빠르게 선택하세요.
+            각 케이스에서 가장 선호하는 후보를 선택하세요.
             결과는 매핑을 통해 method 기준으로 자동 집계됩니다.
           </p>
 
@@ -432,7 +432,6 @@ function ChoiceButton({ choice, selected, disabled, onClick }) {
       <div className="choice-number">{choice.short}</div>
       <div className="choice-copy">
         <strong>{choice.label}</strong>
-        <span>이 후보를 선택</span>
       </div>
       <div className="choice-check">{selected ? <Check size={22} /> : <Circle size={22} />}</div>
     </button>
@@ -549,9 +548,9 @@ function SurveyScreen({ participant, setParticipant, onShowStats, onRestart }) {
               <div className="image-placeholder-card">
                 <Layers3 size={28} />
                 <div>
-                <strong>이미지는 별도 화면/자료에서 확인</strong>
-                <span>후보를 선택하면 자동으로 다음 문항으로 이동합니다.</span>
-              </div>
+              <strong>외부 화면에서 이미지 확인</strong>
+              <span>선택 시 자동으로 다음 문항으로 이동</span>
+            </div>
               </div>
 
               <div className="choice-grid">
